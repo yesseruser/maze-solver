@@ -36,8 +36,10 @@ Input? GetInput()
     return input;
 }
 
-string[][] FindShortestPath(string[][] maze)
+string[][] FindShortestPath(string[][] maze, Point start, Point end)
 {
+    var numberedCells = new int[maze.Length, maze[0].Length];
+    numberedCells[end.X, end.Y] = 0;
     
 }
 
@@ -58,9 +60,9 @@ for (var i = 0; i < input.Maze.Length; i++)
         Console.Write(input.Maze[i][j]);
         
         if (input.Maze[i][j] == "S")
-            start = new(i, j);
+            start = new Point(i, j);
         if (input.Maze[i][j] == "C")
-            end = new(i, j);
+            end = new Point(i, j);
     }
 
     Console.WriteLine();
@@ -75,4 +77,4 @@ if (start is null || end is null)
 Console.WriteLine($"Start: {start}");
 Console.WriteLine($"Start: {end}");
 
-input.Maze = FindShortestPath(input.Maze);
+input.Maze = FindShortestPath(input.Maze, start.Value, end.Value);
