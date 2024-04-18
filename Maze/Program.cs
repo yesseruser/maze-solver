@@ -36,7 +36,7 @@ Input? GetInput()
     return input;
 }
 
-string[][] FindShortestPath(string[][] maze, Point start, Point end)
+string[][]? FindShortestPath(string[][] maze, Point start, Point end)
 {
     if (start == end)
         return maze;
@@ -52,6 +52,9 @@ string[][] FindShortestPath(string[][] maze, Point start, Point end)
 
     while (!didFindStart)
     {
+        if (lastPoints.Count == 0) // The maze has no solution.
+            return null;
+        
         foreach (var point in lastPoints)
         {
             if (point == start)
@@ -113,28 +116,28 @@ string[][] FindShortestPath(string[][] maze, Point start, Point end)
         var lowestPoint = lastPoint;
 
         if (maze.Length > lastPoint.X + 1
-            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && numberedCells[lastPoint.X + 1, lastPoint.Y] != int.MaxValue
             && lowestNum > numberedCells[lastPoint.X + 1, lastPoint.Y])
         {
             lowestNum = numberedCells[lastPoint.X + 1, lastPoint.Y];
             lowestPoint = new Point(lastPoint.X + 1, lastPoint.Y);
         }
         if (lastPoint.X - 1 >= 0
-            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && numberedCells[lastPoint.X - 1, lastPoint.Y] != int.MaxValue
             && lowestNum > numberedCells[lastPoint.X - 1, lastPoint.Y])
         {
             lowestNum = numberedCells[lastPoint.X - 1, lastPoint.Y];
             lowestPoint = new Point(lastPoint.X - 1, lastPoint.Y);
         }
         if (maze[0].Length > lastPoint.Y + 1
-            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && numberedCells[lastPoint.X, lastPoint.Y + 1] != int.MaxValue
             && lowestNum > numberedCells[lastPoint.X, lastPoint.Y + 1])
         {
             lowestNum = numberedCells[lastPoint.X, lastPoint.Y + 1];
             lowestPoint = new Point(lastPoint.X, lastPoint.Y + 1);
         }
         if (lastPoint.Y >= 0
-            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && numberedCells[lastPoint.X, lastPoint.Y - 1] != int.MaxValue
             && lowestNum > numberedCells[lastPoint.X, lastPoint.Y - 1])
         {
             lowestNum = numberedCells[lastPoint.X, lastPoint.Y - 1];
@@ -160,8 +163,6 @@ if (input is null)
 Point? start = null;
 Point? end = null;
 
-Console.WriteLine(input.Maze);
-
 for (var i = 0; i < input.Maze.Length; i++)
 {
     for (var j = 0; j < input.Maze[i].Length; j++)
@@ -183,10 +184,15 @@ if (start is null || end is null)
     return;
 }
 
-Console.WriteLine("\nSolved Maze:");
-
 var solvedMaze = FindShortestPath(input.Maze, start.Value, end.Value);
 
+if (solvedMaze is null)
+{
+    Console.WriteLine("Maze does not have a solution.");
+    return;
+}
+
+Console.WriteLine("\nSolved Maze:");
 for (int i = 0; i < solvedMaze.Length; i++)
 {
     for (int j = 0; j < solvedMaze[i].Length; j++)
