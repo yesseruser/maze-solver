@@ -38,9 +38,118 @@ Input? GetInput()
 
 string[][] FindShortestPath(string[][] maze, Point start, Point end)
 {
+    if (start == end)
+        return maze;
+    
     var numberedCells = new int[maze.Length, maze[0].Length];
     numberedCells[end.X, end.Y] = 0;
     
+    var didFindStart = false;
+    
+    List<Point> lastPoints = [new Point(end.X, end.Y)];
+    List<Point> usedPoints = [new Point(end.X, end.Y)];
+    List<Point> newLastPoints = [];
+
+    while (!didFindStart)
+    {
+        foreach (var point in lastPoints)
+        {
+            if (point == start)
+                didFindStart = true;
+            
+            if (maze.Length > point.X + 1
+                && maze[point.X + 1][point.Y] != "#" 
+                && !usedPoints.Contains(new Point(point.X + 1, point.Y)))
+            {
+                numberedCells[point.X + 1, point.Y] = numberedCells[point.X, point.Y] + 1;
+                newLastPoints.Add(new Point(point.X + 1, point.Y));
+            }
+
+            if (point.X - 1 >= 0
+                && maze[point.X - 1][point.Y] != "#"
+                && !usedPoints.Contains(new Point(point.X - 1, point.Y)))
+            {
+                numberedCells[point.X - 1, point.Y] = numberedCells[point.X, point.Y] + 1;
+                newLastPoints.Add(new Point(point.X - 1, point.Y));
+            }
+
+            if (maze[0].Length > point.Y + 1
+                && maze[point.X][point.Y + 1] != "#"
+                && !usedPoints.Contains(new Point(point.X, point.Y + 1)))
+            {
+                numberedCells[point.X, point.Y + 1] = numberedCells[point.X, point.Y] + 1;
+                newLastPoints.Add(new Point(point.X, point.Y + 1));
+            }
+
+            if (point.Y - 1 >= 0
+                && maze[point.X][point.Y - 1] != "#"
+                && !usedPoints.Contains(new Point(point.X, point.Y - 1)))
+            {
+                numberedCells[point.X, point.Y - 1] = numberedCells[point.X, point.Y] + 1;
+                newLastPoints.Add(new Point(point.X, point.Y - 1));
+            }
+        }
+
+        lastPoints = newLastPoints;
+        usedPoints.AddRange(newLastPoints);
+        newLastPoints = [];
+    }
+
+    string[][] solvedMaze = maze;
+    var lastPoint = start;
+
+    for (int i = 0; i < maze.Length; i++)
+    {
+        for (int j = 0; j < maze[0].Length; j++)
+        {
+            if (new Point(i, j) != end && numberedCells[i, j] == 0)
+                numberedCells[i, j] = int.MaxValue;
+        }
+    }
+    
+    while (true)
+    {
+        var lowestNum = numberedCells[start.X, start.Y];
+        var lowestPoint = lastPoint;
+
+        if (maze.Length > lastPoint.X + 1
+            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && lowestNum > numberedCells[lastPoint.X + 1, lastPoint.Y])
+        {
+            lowestNum = numberedCells[lastPoint.X + 1, lastPoint.Y];
+            lowestPoint = new Point(lastPoint.X + 1, lastPoint.Y);
+        }
+        if (lastPoint.X - 1 >= 0
+            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && lowestNum > numberedCells[lastPoint.X - 1, lastPoint.Y])
+        {
+            lowestNum = numberedCells[lastPoint.X - 1, lastPoint.Y];
+            lowestPoint = new Point(lastPoint.X - 1, lastPoint.Y);
+        }
+        if (maze[0].Length > lastPoint.Y + 1
+            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && lowestNum > numberedCells[lastPoint.X, lastPoint.Y + 1])
+        {
+            lowestNum = numberedCells[lastPoint.X, lastPoint.Y + 1];
+            lowestPoint = new Point(lastPoint.X, lastPoint.Y + 1);
+        }
+        if (lastPoint.Y >= 0
+            && numberedCells[lastPoint.X + 1, lastPoint.Y] != 0
+            && lowestNum > numberedCells[lastPoint.X, lastPoint.Y - 1])
+        {
+            lowestNum = numberedCells[lastPoint.X, lastPoint.Y - 1];
+            lowestPoint = new Point(lastPoint.X, lastPoint.Y - 1);
+        }
+
+        lastPoint = lowestPoint;
+        
+        if (lowestPoint == end)
+            break;
+        
+        solvedMaze[lastPoint.X][lastPoint.Y] = "X";
+    }
+
+    return solvedMaze;
 }
 
 var input = GetInput();
@@ -74,7 +183,16 @@ if (start is null || end is null)
     return;
 }
 
-Console.WriteLine($"Start: {start}");
-Console.WriteLine($"Start: {end}");
+Console.WriteLine("\nSolved Maze:");
 
-input.Maze = FindShortestPath(input.Maze, start.Value, end.Value);
+var solvedMaze = FindShortestPath(input.Maze, start.Value, end.Value);
+
+for (int i = 0; i < solvedMaze.Length; i++)
+{
+    for (int j = 0; j < solvedMaze[i].Length; j++)
+    {
+        Console.Write(solvedMaze[i][j]);
+    }
+
+    Console.WriteLine();
+}
