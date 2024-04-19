@@ -49,9 +49,21 @@ Input? GetInput()
     return input;
 }
 
-int[,] FloodFill(string[][] strings, Point end1, Point start1)
+void AddFilledCell(string[][] maze, int x, int y, Point currentPoint, int[,] numberedPoints, ICollection<Point> usedPoints,
+    ICollection<Point> newLastPoints)
 {
-    var filledFields = new int[strings.Length, strings[0].Length];
+    if (x >= maze.GetLength(0) || x <= 0 
+        || y >= maze.GetLength(1) || y <= 0
+        || maze[x][y] == "#"
+        || usedPoints.Contains(new Point(x, y))) return;
+    
+    numberedPoints[x, y] = numberedPoints[currentPoint.X, currentPoint.Y] + 1;
+    newLastPoints.Add(new Point(x, y));
+}
+
+int[,] FloodFill(string[][] maze, Point end1, Point start1)
+{
+    var filledFields = new int[maze.Length, maze[0].Length];
     filledFields = Fill2DArray(filledFields);
     filledFields[end1.X, end1.Y] = 0;
     
@@ -71,37 +83,10 @@ int[,] FloodFill(string[][] strings, Point end1, Point start1)
             if (point == start1)
                 didFindStart = true;
             
-            if (strings.Length > point.X + 1
-                && strings[point.X + 1][point.Y] != "#" 
-                && !usedPoints.Contains(new Point(point.X + 1, point.Y)))
-            {
-                filledFields[point.X + 1, point.Y] = filledFields[point.X, point.Y] + 1;
-                newLastPoints.Add(new Point(point.X + 1, point.Y));
-            }
-
-            if (point.X - 1 >= 0
-                && strings[point.X - 1][point.Y] != "#"
-                && !usedPoints.Contains(new Point(point.X - 1, point.Y)))
-            {
-                filledFields[point.X - 1, point.Y] = filledFields[point.X, point.Y] + 1;
-                newLastPoints.Add(new Point(point.X - 1, point.Y));
-            }
-
-            if (strings[0].Length > point.Y + 1
-                && strings[point.X][point.Y + 1] != "#"
-                && !usedPoints.Contains(new Point(point.X, point.Y + 1)))
-            {
-                filledFields[point.X, point.Y + 1] = filledFields[point.X, point.Y] + 1;
-                newLastPoints.Add(new Point(point.X, point.Y + 1));
-            }
-
-            if (point.Y - 1 >= 0
-                && strings[point.X][point.Y - 1] != "#"
-                && !usedPoints.Contains(new Point(point.X, point.Y - 1)))
-            {
-                filledFields[point.X, point.Y - 1] = filledFields[point.X, point.Y] + 1;
-                newLastPoints.Add(new Point(point.X, point.Y - 1));
-            }
+            AddFilledCell(maze, point.X + 1, point.Y, point, filledFields, usedPoints, newLastPoints);
+            AddFilledCell(maze, point.X - 1, point.Y, point, filledFields, usedPoints, newLastPoints);
+            AddFilledCell(maze, point.X, point.Y + 1, point, filledFields, usedPoints, newLastPoints);
+            AddFilledCell(maze, point.X, point.Y - 1, point, filledFields, usedPoints, newLastPoints);
         }
 
         lastPoints = newLastPoints;
