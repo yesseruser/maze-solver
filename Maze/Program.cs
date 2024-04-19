@@ -52,8 +52,8 @@ Input? GetInput()
 void AddFilledCell(string[][] maze, int x, int y, Point currentPoint, int[,] numberedPoints, ICollection<Point> usedPoints,
     ICollection<Point> newLastPoints)
 {
-    if (x >= maze.GetLength(0) || x <= 0 
-        || y >= maze.GetLength(1) || y <= 0
+    if (x >= maze.Length || x <= 0 
+        || y >= maze[0].Length || y <= 0
         || maze[x][y] == "#"
         || usedPoints.Contains(new Point(x, y))) return;
     
